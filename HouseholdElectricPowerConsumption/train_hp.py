@@ -12,7 +12,7 @@ import pickle
 from datetime import datetime
 import os
 from sklearn.preprocessing import MinMaxScaler
- 
+from glob import glob
 from hyperopt import hp, tpe, Trials, fmin, space_eval
 
 from keras.models import Sequential  
@@ -84,6 +84,10 @@ def objective(args):
     mcp = ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=True, mode='auto')
     
     history = model.fit(X_train, y_train, batch_size=batch_size, epochs=30, callbacks=[es, mcp], validation_split=0.05) 
+
+    unnecessary_filenames = glob(dir_name + os.sep + "*weights*")[0:-1]
+    for filename in unnecessary_filenames:
+        os.remove(filename)
     return history.history['val_loss'][0]
 
 
