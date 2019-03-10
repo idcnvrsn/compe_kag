@@ -41,10 +41,10 @@ def _load_data(data, n_prev = 30):
     """
     docX, docY = [], []
     for i in range(len(data)-n_prev):
-#        docX.append(data.iloc[i:i+n_prev].as_matrix())
-#        docY.append(data.iloc[i+n_prev].as_matrix())
-        docX.append(data.iloc[i:i+n_prev])
-        docY.append(data.iloc[i+n_prev])
+        docX.append(data.iloc[i:i+n_prev].as_matrix())
+        docY.append(data.iloc[i+n_prev][0])
+#        docX.append(data.iloc[i:i+n_prev])
+#        docY.append(data.iloc[i+n_prev])
     alsX = np.array(docX)
     alsY = np.array(docY)
 
@@ -68,14 +68,15 @@ def objective(args):
     length_of_sequences = int(args['length_of_sequences'])
     hidden_neurons = int(args['hidden_neurons'])
 
-    (X_train, y_train), (X_test, y_test) = train_test_split(df_obj, test_size=0.2, n_prev =length_of_sequences)
-    X_train = X_train[:,:,np.newaxis]
-#    import pdb;pdb.set_trace()
+    (X_train, y_train), (X_test, y_test) = train_test_split(df, test_size=0.2, n_prev =length_of_sequences)
+    
+    in_out_neurons = X_train.shape[2]
 
     model = Sequential()
     model.add(LSTM(hidden_neurons, batch_input_shape=(None, length_of_sequences, in_out_neurons), return_sequences=False))
     model.add(Dense(in_out_neurons))  
     model.add(Activation("linear"))  
+    model.add(Dense(1))  
     model.compile(loss="mean_squared_error", optimizer="Adam")#"rmsprop")
 
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='auto')
@@ -99,9 +100,11 @@ if __name__ == '__main__':
     ms = MinMaxScaler()
     data_norm = ms.fit_transform(df)
     
-    df_obj = df["Global_active_power"]
+#    df_obj = df["Global_active_power"]
     
-    df_obj=df_obj / df_obj.max()
+#    df_obj=df_obj / df_obj.max()
+
+    df = pd.DataFrame(data_norm)
     
     dir_name = datetime.now().strftime('%Y%m%d_%H%M%S')
     os.mkdir(dir_name)
