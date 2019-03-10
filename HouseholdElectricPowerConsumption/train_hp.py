@@ -82,14 +82,14 @@ def objective(args):
 
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='auto')
     filepath = dir_name + os.sep + str(trial_num) + '_weights.{epoch:03d}-{loss:.4f}_{val_loss:.4f}.hdf5'
-    mcp = ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=True, mode='auto')
+    mcp = ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto')
     
     history = model.fit(X_train, y_train, batch_size=batch_size, epochs=30, callbacks=[es, mcp], validation_split=0.05) 
-
     unnecessary_filenames = glob(dir_name + os.sep + str(trial_num) + "*weights*")[0:-1]
     for filename in unnecessary_filenames:
         os.remove(filename)
-    return history.history['val_loss'][0]
+    obj = np.min(history.history['val_loss'])
+    return obj 
 
 
 if __name__ == '__main__':
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     #hidden_neurons = 600
 
     # iterationする回数
-    max_evals = 100
+    max_evals = 5
     # 試行の過程を記録するインスタンス
     trials = Trials()
     
@@ -147,6 +147,9 @@ if __name__ == '__main__':
     best_id = np.argmin(trials.losses())
     best_filename = glob(dir_name + os.sep + str(best_id) + "*.hdf5")[0]
     model = load_model(best_filename)
+    
+    (X_train, y_train), (X_test, y_test) = train_test_split(df, test_size=0.2, n_prev =5)
+
     predicted = model.predict(X_test) 
     
     dataf =  pd.DataFrame(predicted[:200])
