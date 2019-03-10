@@ -29,18 +29,6 @@ hyperopt_parameters = {
 #    'kernel': hp.choice('kernel', ['rbf', 'poly', 'sigmoid'])
 }
 
-csv_filename = r"C:\Users\kodama\Documents\github\compe_kag\HouseholdElectricPowerConsumption\household_power_consumption.txt"
-df = pd.read_csv(csv_filename, sep = ";")
-
-df = df.iloc[:,2:]
-df = df.head(int(df.shape[0]/1000))
-
-ms = MinMaxScaler()
-data_norm = ms.fit_transform(df)
-
-df_close = df["Global_active_power"]
-
-df_close=df_close / df_close.max()
 
 def _load_data(data, n_prev = 30):  
     """
@@ -66,17 +54,6 @@ def train_test_split(df, test_size=0.1, n_prev = 100):
 
     return (X_train, y_train), (X_test, y_test)
 
-dir_name = datetime.now().strftime('%Y%m%d_%H%M%S')
-os.mkdir(dir_name)
-
-
-
-#length_of_sequences = 100
-
-
-in_out_neurons = 1
-#hidden_neurons = 600
-
 def objective(args):
     print(args)
     batch_size = int(args['batch_size'])
@@ -99,37 +76,66 @@ def objective(args):
 #    import pdb;pdb.set_trace()
     return history.history['val_loss'][0]
 
-# iterationする回数
-max_evals = 100
-# 試行の過程を記録するインスタンス
-trials = Trials()
 
-trial_num = 1
-while trial_num < max_evals:
-    best = fmin(
-        # 最小化する値を定義した関数
-        objective,
-        # 探索するパラメータのdictもしくはlist
-        hyperopt_parameters,
-        # どのロジックを利用するか、基本的にはtpe.suggestでok
-        algo=tpe.suggest,
-        max_evals=trial_num,
-        trials=trials,
-        # 試行の過程を出力
-        verbose=1
-    )
+if __name__ == '__main__':」の意味 - Qiita
+
+    csv_filename = r"C:\Users\kodama\Documents\github\compe_kag\HouseholdElectricPowerConsumption\household_power_consumption.txt"
+    df = pd.read_csv(csv_filename, sep = ";")
     
-    with open(dir_name + os.sep + "trials.pkl","wb") as f:    
-        pickle.dump(trials, f)
+    df = df.iloc[:,2:]
+    df = df.head(int(df.shape[0]/1000))
     
-    trial_num += 1
+    ms = MinMaxScaler()
+    data_norm = ms.fit_transform(df)
     
+    df_close = df["Global_active_power"]
+    
+    df_close=df_close / df_close.max()
+    
+    
+    dir_name = datetime.now().strftime('%Y%m%d_%H%M%S')
+    os.mkdir(dir_name)
+    
+    
+    
+    #length_of_sequences = 100
+    
+    
+    in_out_neurons = 1
+    #hidden_neurons = 600
 
-predicted = model.predict(X_test) 
 
-dataf =  pd.DataFrame(predicted[:200])
-dataf.columns = ["predict"]
-dataf["input"] = y_test[:200]
-dataf.plot(figsize=(15, 5))
-
-
+    # iterationする回数
+    max_evals = 100
+    # 試行の過程を記録するインスタンス
+    trials = Trials()
+    
+    trial_num = 1
+    while trial_num < max_evals:
+        best = fmin(
+            # 最小化する値を定義した関数
+            objective,
+            # 探索するパラメータのdictもしくはlist
+            hyperopt_parameters,
+            # どのロジックを利用するか、基本的にはtpe.suggestでok
+            algo=tpe.suggest,
+            max_evals=trial_num,
+            trials=trials,
+            # 試行の過程を出力
+            verbose=1
+        )
+        
+        with open(dir_name + os.sep + "trials.pkl","wb") as f:    
+            pickle.dump(trials, f)
+        
+        trial_num += 1
+        
+    
+    predicted = model.predict(X_test) 
+    
+    dataf =  pd.DataFrame(predicted[:200])
+    dataf.columns = ["predict"]
+    dataf["input"] = y_test[:200]
+    dataf.plot(figsize=(15, 5))
+    
+    
