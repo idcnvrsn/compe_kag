@@ -60,7 +60,7 @@ def objective(args):
     length_of_sequences = int(args['length_of_sequences'])
     hidden_neurons = int(args['hidden_neurons'])
 
-    (X_train, y_train), (X_test, y_test) = train_test_split(df_close, test_size=0.2, n_prev =length_of_sequences)
+    (X_train, y_train), (X_test, y_test) = train_test_split(df_obj, test_size=0.2, n_prev =length_of_sequences)
 
     model = Sequential()
     model.add(LSTM(hidden_neurons, batch_input_shape=(None, length_of_sequences, in_out_neurons), return_sequences=False))  
@@ -81,29 +81,26 @@ if __name__ == '__main__':
 
     csv_filename = r"C:\Users\kodama\Documents\github\compe_kag\HouseholdElectricPowerConsumption\household_power_consumption.txt"
     df = pd.read_csv(csv_filename, sep = ";")
-    
     df = df.iloc[:,2:]
+    df = df.dropna()
+    df = df[df.columns].astype(float)
+        
     df = df.head(int(df.shape[0]/1000))
     
     ms = MinMaxScaler()
     data_norm = ms.fit_transform(df)
     
-    df_close = df["Global_active_power"]
+    df_obj = df["Global_active_power"]
     
-    df_close=df_close / df_close.max()
-    
+    df_obj=df_obj / df_obj.max()
     
     dir_name = datetime.now().strftime('%Y%m%d_%H%M%S')
     os.mkdir(dir_name)
     
-    
-    
     #length_of_sequences = 100
-    
     
     in_out_neurons = 1
     #hidden_neurons = 600
-
 
     # iterationする回数
     max_evals = 100
