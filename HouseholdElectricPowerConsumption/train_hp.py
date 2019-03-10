@@ -77,7 +77,7 @@ def objective(args):
     return history.history['val_loss'][0]
 
 
-if __name__ == '__main__':」の意味 - Qiita
+if __name__ == '__main__':
 
     csv_filename = r"C:\Users\kodama\Documents\github\compe_kag\HouseholdElectricPowerConsumption\household_power_consumption.txt"
     df = pd.read_csv(csv_filename, sep = ";")
