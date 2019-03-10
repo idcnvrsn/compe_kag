@@ -21,6 +21,7 @@ from keras.layers.recurrent import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
 from keras.callbacks import History
+from keras.models import load_model
 
 hyperopt_parameters_def = {
     'length_of_sequences':5,
@@ -85,7 +86,7 @@ def objective(args):
     
     history = model.fit(X_train, y_train, batch_size=batch_size, epochs=30, callbacks=[es, mcp], validation_split=0.05) 
 
-    unnecessary_filenames = glob(dir_name + os.sep + "*weights*")[0:-1]
+    unnecessary_filenames = glob(dir_name + os.sep + str(trial_num) + "*weights*")[0:-1]
     for filename in unnecessary_filenames:
         os.remove(filename)
     return history.history['val_loss'][0]
@@ -123,7 +124,7 @@ if __name__ == '__main__':
     # 試行の過程を記録するインスタンス
     trials = Trials()
     
-    trial_num = 1
+    trial_num = 0
     while trial_num < max_evals:
         best = fmin(
             # 最小化する値を定義した関数
@@ -132,7 +133,7 @@ if __name__ == '__main__':
             hyperopt_parameters_def,
             # どのロジックを利用するか、基本的にはtpe.suggestでok
             algo=tpe.suggest,
-            max_evals=trial_num,
+            max_evals=trial_num+1,
             trials=trials,
             # 試行の過程を出力
             verbose=1
@@ -143,7 +144,9 @@ if __name__ == '__main__':
         
         trial_num += 1
         
-    
+    best_id = np.argmin(trials.losses())
+    best_filename = glob(dir_name + os.sep + str(best_id) + "*.hdf5")[0]
+    model = load_model(best_filename)
     predicted = model.predict(X_test) 
     
     dataf =  pd.DataFrame(predicted[:200])
