@@ -50,7 +50,7 @@ def _load_data(data, n_prev = 30):
 
     return alsX, alsY
 
-def train_test_split(_df, test_size=0.1, n_prev = 100):  
+def train_test_split(_df, test_size=0.1, n_prev = 100):
     """
     This just splits data to training and testing parts
     """
@@ -69,19 +69,20 @@ def objective(args):
     hidden_neurons = int(args['hidden_neurons'])
 
     (X_train, y_train), (X_test, y_test) = train_test_split(df_obj, test_size=0.2, n_prev =length_of_sequences)
+    X_train = X_train[:,:,np.newaxis]
+#    import pdb;pdb.set_trace()
 
     model = Sequential()
-    model.add(LSTM(hidden_neurons, batch_input_shape=(None, length_of_sequences, in_out_neurons), return_sequences=False))  
+    model.add(LSTM(hidden_neurons, batch_input_shape=(None, length_of_sequences, in_out_neurons), return_sequences=False))
     model.add(Dense(in_out_neurons))  
     model.add(Activation("linear"))  
     model.compile(loss="mean_squared_error", optimizer="Adam")#"rmsprop")
-        
+
     es = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='auto')
     filepath = dir_name + os.sep + str(trial_num) + '_weights.{epoch:03d}-{loss:.4f}_{val_loss:.4f}.hdf5'
     mcp = ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=True, mode='auto')
     
     history = model.fit(X_train, y_train, batch_size=batch_size, epochs=30, callbacks=[es, mcp], validation_split=0.05) 
-#    import pdb;pdb.set_trace()
     return history.history['val_loss'][0]
 
 
