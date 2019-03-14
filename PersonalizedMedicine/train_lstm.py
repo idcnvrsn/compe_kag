@@ -41,14 +41,14 @@ batch_size = 4
 print('Loading data...')
 #(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
 
-with open((r"C:\Users\kodama\Documents\github\compe_kag\PersonalizedMedicine\training_text"),"r",encoding="utf-8") as f:
+with open((r"training_text"),"r",encoding="utf-8") as f:
     train_text = f.readlines()
 train_text = train_text[1:]
 
 train_text = [text.split("||")[1] for text in train_text]
 train_text = [text[0:-1] for text in train_text]
 
-with open((r"C:\Users\kodama\Documents\github\compe_kag\PersonalizedMedicine\training_variants"),"r",encoding="utf-8") as f:
+with open((r"training_variants"),"r",encoding="utf-8") as f:
     train_variants = f.readlines()
 train_variants = train_variants[1:]
 
