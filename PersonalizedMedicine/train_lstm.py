@@ -95,18 +95,18 @@ if do_cache:
     X_nos = []
     for x_elem in X:
         X_nos.append([word.lower() for word in x_elem if word.lower() not in stopWords])
-    
-    tokenizer = Tokenizer(num_words=max_features)
-    tokenizer.fit_on_texts(X_nos)
-    X_seq = tokenizer.texts_to_sequences(X_nos)
-    
+        
     # GeneとVariantを追加する。
-    X_final = []
-    for (var, x) in zip(train_variants, X_final):
-        X_final.append(var[1])
-        X_final.extend(var[2])
-        X_final.extend(x)
-    
+    X_gv = []
+    for var, x in zip(train_variants, X_nos):
+        x.insert(0,var[1])
+        x.insert(0,var[2])
+        X_gv.append(x)
+
+    tokenizer = Tokenizer(num_words=max_features)
+    tokenizer.fit_on_texts(X_gv)
+    X_final = tokenizer.texts_to_sequences(X_gv)
+
     with open('X_final.pkl', 'wb') as f:
         pickle.dump(X_final, f)
     import sys
@@ -114,7 +114,7 @@ if do_cache:
 else:
     with open('X_final.pkl', 'rb') as f:
         X_final = pickle.load(f)    
-    
+
 x_train, x_test, y_train, y_test = train_test_split(X_final, y, test_size=0.2)
 
 print(len(x_train), 'train sequences')
