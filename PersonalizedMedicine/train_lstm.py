@@ -21,6 +21,7 @@ from what you see with CNNs/MLPs/etc.
 
 '''
 #from __future__ import print_function
+import pickle
 import re
 from keras.preprocessing import sequence
 from keras.models import Sequential
@@ -39,6 +40,8 @@ from nltk import word_tokenize
 
 from sklearn.model_selection import train_test_split
 #from sklearn.feature_extraction.text import CountVectorizer
+
+do_cache = False
 
 max_features = 20000
 # cut texts after this number of words (among top max_features most common words)
@@ -79,25 +82,26 @@ train_variants = [int(variant.split(",")[-1]) for variant in train_variants]
 X = train_text
 y = to_categorical(train_variants)
 
-X=X[:5]
-y=y[:5]
-
-X = [preprocessor(strings) for strings in X]
-
-X = [word_tokenize(x) for x in X] 
-
-stopWords = stopwords.words('english')
-
-X_nos = []
-for x_elem in X:
-    X_nos.append([word.lower() for word in x_elem if word.lower() not in stopWords])
-
-tokenizer = Tokenizer(num_words=max_features)
-tokenizer.fit_on_texts(X_nos)
-X_final = tokenizer.texts_to_sequences(X_nos)
-
-import pdb;pdb.set_trace()
-
+if do_cache:
+    X = [preprocessor(strings) for strings in X]
+    
+    X = [word_tokenize(x) for x in X] 
+    
+    stopWords = stopwords.words('english')
+    
+    X_nos = []
+    for x_elem in X:
+        X_nos.append([word.lower() for word in x_elem if word.lower() not in stopWords])
+    
+    tokenizer = Tokenizer(num_words=max_features)
+    tokenizer.fit_on_texts(X_nos)
+    X_final = tokenizer.texts_to_sequences(X_nos)
+    with open('X_final.pkl', 'wb') as f:
+        pickle.dump(X_final, f)    
+else:
+    with open('X_final.pkl', 'rb') as f:
+        X_final = pickle.load(f)    
+    
 x_train, x_test, y_train, y_test = train_test_split(X_final, y, test_size=0.2)
 
 print(len(x_train), 'train sequences')
