@@ -74,7 +74,7 @@ train_variants = train_variants[1:]
 # \nの除外と各要素への分解
 train_variants =[variant[:-1].split(",") for variant in train_variants]
 
-y = to_categorical([variant[3] for variant in train_variants])
+y = to_categorical([int(variant[3]) - 1 for variant in train_variants])
 
 if do_cache:
     with open((r"training_text"),"r",encoding="utf-8") as f:
@@ -138,7 +138,7 @@ model = Sequential()
 model.add(Embedding(max_features, 128))
 model.add(LSTM(128, dropout=0.2, recurrent_dropout=0.2))
 model.add(BatchNormalization())
-model.add(Dense(10, activation='softmax'))
+model.add(Dense(9, activation='softmax'))
 
 # try using different optimizers and different optimizer configs
 model.compile(loss='categorical_crossentropy',
