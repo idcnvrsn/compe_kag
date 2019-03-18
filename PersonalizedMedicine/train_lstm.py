@@ -37,6 +37,7 @@ from nltk.corpus import stopwords
 from nltk import word_tokenize
 #import nltk
 #nltk.download()
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 #from sklearn.feature_extraction.text import CountVectorizer
@@ -66,23 +67,25 @@ def preprocessor(text):
 print('Loading data...')
 #(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
 
-with open((r"training_text"),"r",encoding="utf-8") as f:
-    train_text = f.readlines()
-train_text = train_text[1:]
-
-train_text = [text.split("||")[1] for text in train_text]
-train_text = [text[0:-1] for text in train_text]
-
 with open((r"training_variants"),"r",encoding="utf-8") as f:
     train_variants = f.readlines()
 train_variants = train_variants[1:]
 
-train_variants = [int(variant.split(",")[-1]) for variant in train_variants]
+# \nの除外と各要素への分解
+train_variants =[variant[:-1].split(",") for variant in train_variants]
 
-X = train_text
-y = to_categorical(train_variants)
+y = to_categorical([variant[3] for variant in train_variants])
 
 if do_cache:
+    with open((r"training_text"),"r",encoding="utf-8") as f:
+        train_text = f.readlines()
+    train_text = train_text[1:]
+    
+    train_text = [text.split("||")[1] for text in train_text]
+    train_text = [text[0:-1] for text in train_text]
+
+    X = train_text
+
     X = [preprocessor(strings) for strings in X]
     
     X = [word_tokenize(x) for x in X] 
@@ -95,9 +98,19 @@ if do_cache:
     
     tokenizer = Tokenizer(num_words=max_features)
     tokenizer.fit_on_texts(X_nos)
-    X_final = tokenizer.texts_to_sequences(X_nos)
+    X_seq = tokenizer.texts_to_sequences(X_nos)
+    
+    # GeneとVariantを追加する。
+    X_final = []
+    for (var, x) in zip(train_variants, X_final):
+        X_final.append(var[1])
+        X_final.extend(var[2])
+        X_final.extend(x)
+    
     with open('X_final.pkl', 'wb') as f:
-        pickle.dump(X_final, f)    
+        pickle.dump(X_final, f)
+    import sys
+    sys.exit()
 else:
     with open('X_final.pkl', 'rb') as f:
         X_final = pickle.load(f)    
