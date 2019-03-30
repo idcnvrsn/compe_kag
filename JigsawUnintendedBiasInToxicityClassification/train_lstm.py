@@ -91,7 +91,7 @@ if do_cache:
 
     with open('X_final.pkl', 'wb') as f:
         pickle.dump(X_final, f)
-    with open('y_final.pkl', 'wb') as f:
+    with open('y.pkl', 'wb') as f:
         pickle.dump(y, f)
 
     import sys
