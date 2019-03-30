@@ -42,7 +42,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 #from sklearn.feature_extraction.text import CountVectorizer
 
-do_cache = True
+do_cache = False
 
 max_features = 20000
 # cut texts after this number of words (among top max_features most common words)
