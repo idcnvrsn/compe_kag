@@ -32,12 +32,15 @@ from keras.utils import to_categorical
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam
 from keras.preprocessing.text import Tokenizer
+from keras.callbacks import ModelCheckpoint
 
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 #import nltk
 #nltk.download()
 import pandas as pd
+import os
+from datetime import datetime
 
 from sklearn.model_selection import train_test_split
 #from sklearn.feature_extraction.text import CountVectorizer
@@ -129,14 +132,22 @@ model.add(BatchNormalization())
 model.add(Dense(1, activation='sigmoid'))
 
 # try using different optimizers and different optimizer configs
-model.compile(loss='binary_crossentropy',
+model.compile(loss='mean_squared_error',#'binary_crossentropy',
               optimizer=Adam(lr=0.001),
               metrics=['accuracy'])
+
+dir_name = datetime.now().strftime('%Y%m%d_%H%M%S')
+os.mkdir(dir_name)
+
+filepath = dir_name + os.sep + 'weights.{epoch:03d}-{loss:.4f}_{val_loss:.4f}.hdf5'
+mcp = ModelCheckpoint(filepath, monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='auto')
+
 
 print('Train...')
 model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=40,
+          callbacks=[mcp],
           validation_data=(x_test, y_test))
 score, acc = model.evaluate(x_test, y_test,
                             batch_size=batch_size)
