@@ -68,7 +68,9 @@ if __name__ == '__main__':
 
     pred = model.predict(x)
 
+    ids = pd.DataFrame(ids)
     df_pred = pd.DataFrame(pred, columns=['prediction'])
-    df_submit = pd.concat([ids, df_pred])
+    df_submit = pd.concat([ids, df_pred], axis=1)
     
-    df_submit.col = ['id',]
+    df_submit.col = ['id']
+    df_submit.to_csv("submission.csv", index=False)
